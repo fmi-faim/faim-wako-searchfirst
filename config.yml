@@ -1,0 +1,13 @@
+file_selection:
+    channel: C01
+initial_segmentation:
+    threshold: 580
+    min_size: 1100
+    include_holes: yes
+additional_analysis:
+    enabled: no
+    target_channel: C03
+    min_intensity: 500
+grid_sampling:
+    mag_first_pass: 4
+    mag_second_pass: 40
