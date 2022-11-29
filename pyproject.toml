@@ -23,7 +23,12 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = []
+dependencies = [
+  "confuse",
+  "rich",
+  "scikit-image",
+  "typer"
+]
 dynamic = ["version"]
 
 [project.urls]
