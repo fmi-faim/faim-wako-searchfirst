@@ -32,9 +32,9 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Documentation = "https://github.com/unknown/faim-wako-searchfirst#readme"
-Issues = "https://github.com/unknown/faim-wako-searchfirst/issues"
-Source = "https://github.com/unknown/faim-wako-searchfirst"
+Documentation = "https://github.com/fmi-faim/faim-wako-searchfirst#readme"
+Issues = "https://github.com/fmi-faim/faim-wako-searchfirst/issues"
+Source = "https://github.com/fmi-faim/faim-wako-searchfirst"
 
 [tool.hatch.version]
 path = "faim_wako_searchfirst/__about__.py"
