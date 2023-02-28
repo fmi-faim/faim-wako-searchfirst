@@ -1,6 +1,6 @@
 file_selection:
     channel: C01
-initial_segmentation:
+segmentation:
     threshold: 580
     min_size: 1100
     include_holes: yes

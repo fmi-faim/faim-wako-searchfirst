@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
@@ -37,7 +37,7 @@ Issues = "https://github.com/fmi-faim/faim-wako-searchfirst/issues"
 Source = "https://github.com/fmi-faim/faim-wako-searchfirst"
 
 [tool.hatch.version]
-path = "faim_wako_searchfirst/__about__.py"
+source = "vcs"
 
 [tool.hatch.envs.default]
 dependencies = [
@@ -54,9 +54,6 @@ python = ["37", "38", "39", "310", "311"]
 [tool.coverage.run]
 branch = true
 parallel = true
-omit = [
-  "faim_wako_searchfirst/__about__.py",
-]
 
 [tool.coverage.report]
 exclude_lines = [

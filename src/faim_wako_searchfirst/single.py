@@ -23,8 +23,10 @@ def run(folder, configfile):
     config = confuse.Configuration("faim-wako-searchfirst")
     config.set_file(config_path, base_for_paths=True)
     logger.info(f"Reading config parameters from file {config_path.absolute()}.")
+
     file_selection_params = config["file_selection"].get()
-    segmentation_params = config["initial_segmentation"].get()
+    segmentation_params = config["segmentation"].get()
+
     logger.info("Segmentation parameters: " + json.dumps(segmentation_params, indent=4))
 
     # Copy config file to destination
