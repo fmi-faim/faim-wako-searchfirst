@@ -61,3 +61,8 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+
+[tool.ruff]
+line-length = 120
+select = ['A', 'B', 'C', 'E', 'F', 'I']
+target-version = 'py39'

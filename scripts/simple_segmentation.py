@@ -1,5 +1,4 @@
 import typer as typer
-
 from faim_wako_searchfirst.single import run
 
 

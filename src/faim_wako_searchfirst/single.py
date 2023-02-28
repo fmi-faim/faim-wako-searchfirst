@@ -6,7 +6,7 @@ from pathlib import Path
 import confuse
 from rich.progress import track
 from skimage.io import imread
-from skimage.measure import regionprops, label
+from skimage.measure import label, regionprops
 
 
 def run(folder, configfile):
@@ -14,7 +14,7 @@ def run(folder, configfile):
     path = Path(folder)
     assert path.is_dir(), f"Invalid input folder: {folder}"
 
-    logging.basicConfig(filename=Path(folder, __name__ + ".log"),
+    logging.basicConfig(filename=path / __name__ + ".log",
                         format='%(asctime)s - %(name)s - [%(levelname)s] %(message)s',
                         level=logging.INFO)  # encoding="utf-8",
     logger = logging.getLogger(__name__)
@@ -30,17 +30,17 @@ def run(folder, configfile):
     logger.info("Segmentation parameters: " + json.dumps(segmentation_params, indent=4))
 
     # Copy config file to destination
-    config_copy = Path(folder, config_path.name)
+    config_copy = path / config_path.name
     config_copy.write_text(config.dump())
 
-    segment(folder, logger=logger, seg_params=segmentation_params, **file_selection_params)
+    segment(path, logger=logger, seg_params=segmentation_params, **file_selection_params)
 
 
 def segment(folder, logger, channel, seg_params):
     logger.info("Starting segmentation...")
 
     # Filter all TIFs in folder starting with folder's name - and containing channel ID
-    tifs = (sorted(path.rglob(path.name + "*" + channel + ".[Tt][Ii][Ff]")))
+    tifs = (sorted(folder.rglob(folder.name + "*" + channel + ".[Tt][Ii][Ff]")))
 
     # Write CSV file for each TIF
     for tif in track(tifs):

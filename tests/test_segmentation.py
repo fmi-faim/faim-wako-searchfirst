@@ -1,5 +1,4 @@
 import pytest
-
 from faim_wako_searchfirst.single import run
 
 
