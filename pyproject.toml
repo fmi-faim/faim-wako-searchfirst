@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 Friedrich Miescher Institute for Biomedical Research (FMI), Basel (Switzerland)
+#
+# SPDX-License-Identifier: MIT
+
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
@@ -64,5 +68,5 @@ exclude_lines = [
 
 [tool.ruff]
 line-length = 120
-select = ['A', 'B', 'C', 'E', 'F', 'I']
+select = ['A', 'B', 'C', 'D', 'E', 'F', 'I']
 target-version = 'py39'

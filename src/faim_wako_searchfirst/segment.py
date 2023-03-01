@@ -1,7 +1,14 @@
+# SPDX-FileCopyrightText: 2023 Friedrich Miescher Institute for Biomedical Research (FMI), Basel (Switzerland)
+#
+# SPDX-License-Identifier: MIT
+
+"""Segment images of a Wako SearchFirst first pass acquisition."""
+
 import csv
 import json
 import logging
 from pathlib import Path
+from typing import Union
 
 import confuse
 from rich.progress import track
@@ -9,12 +16,13 @@ from skimage.io import imread
 from skimage.measure import label, regionprops
 
 
-def run(folder, configfile):
+def run(folder: Union[str, Path], configfile: str):
+    """Analyse first pass of a Wako SearchFirst experiment."""
     # Check if folder_path is valid
     path = Path(folder)
     assert path.is_dir(), f"Invalid input folder: {folder}"
 
-    logging.basicConfig(filename=path / __name__ + ".log",
+    logging.basicConfig(filename=path / (__name__ + ".log"),
                         format='%(asctime)s - %(name)s - [%(levelname)s] %(message)s',
                         level=logging.INFO)  # encoding="utf-8",
     logger = logging.getLogger(__name__)
@@ -37,6 +45,7 @@ def run(folder, configfile):
 
 
 def segment(folder, logger, channel, seg_params):
+    """Segment images with the provided segmentation parameters."""
     logger.info("Starting segmentation...")
 
     # Filter all TIFs in folder starting with folder's name - and containing channel ID
@@ -50,6 +59,7 @@ def segment(folder, logger, channel, seg_params):
 
 
 def process_file(tif, logger, threshold, min_size=0, include_holes=False):
+    """Run segmentation on a single file."""
     logger.info(f"Opening {tif} ...")
     img = imread(tif)
     mask = img > threshold
@@ -57,6 +67,8 @@ def process_file(tif, logger, threshold, min_size=0, include_holes=False):
     regions = regionprops(labeled_img)
 
     # TODO implement size and eccentricity filtering
+    # TODO create segmentation preview
+    # TODO implement object <-> grid sampling
 
     logger.info(f"Found {len(regions)} regions.")
     with open(tif.parent / (tif.stem + ".csv"), "w", newline="") as csv_file:
