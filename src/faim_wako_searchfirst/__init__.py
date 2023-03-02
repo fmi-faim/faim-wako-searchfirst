@@ -2,4 +2,4 @@
 #
 # SPDX-License-Identifier: MIT
 
-"""Test the faim_wako_searchfirst package."""
+"""Analyze a Wako SearchFirst first pass acquisition."""

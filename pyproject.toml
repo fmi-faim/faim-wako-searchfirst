@@ -1,5 +1,9 @@
+# SPDX-FileCopyrightText: 2023 Friedrich Miescher Institute for Biomedical Research (FMI), Basel (Switzerland)
+#
+# SPDX-License-Identifier: MIT
+
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
@@ -23,16 +27,21 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = []
+dependencies = [
+  "confuse",
+  "rich",
+  "scikit-image",
+  "typer"
+]
 dynamic = ["version"]
 
 [project.urls]
-Documentation = "https://github.com/unknown/faim-wako-searchfirst#readme"
-Issues = "https://github.com/unknown/faim-wako-searchfirst/issues"
-Source = "https://github.com/unknown/faim-wako-searchfirst"
+Documentation = "https://github.com/fmi-faim/faim-wako-searchfirst#readme"
+Issues = "https://github.com/fmi-faim/faim-wako-searchfirst/issues"
+Source = "https://github.com/fmi-faim/faim-wako-searchfirst"
 
 [tool.hatch.version]
-path = "faim_wako_searchfirst/__about__.py"
+source = "vcs"
 
 [tool.hatch.envs.default]
 dependencies = [
@@ -49,9 +58,6 @@ python = ["37", "38", "39", "310", "311"]
 [tool.coverage.run]
 branch = true
 parallel = true
-omit = [
-  "faim_wako_searchfirst/__about__.py",
-]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -59,3 +65,8 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+
+[tool.ruff]
+line-length = 120
+select = ['A', 'B', 'C', 'D', 'E', 'F', 'I']
+target-version = 'py39'
