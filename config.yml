@@ -5,13 +5,18 @@
 file_selection:
     channel: C01
 segmentation:
-    threshold: 580
-    min_size: 1100
+    threshold: 128
     include_holes: yes
+    min_size: 10
+    max_eccentricity: 0.4
 additional_analysis:
-    enabled: no
+    enabled: yes
     target_channel: C03
     min_intensity: 500
+output:
+    type: grid
 grid_sampling:
     mag_first_pass: 4
     mag_second_pass: 40
+    overlap_percent: 0
+    offset_grid_origin_percent: 50
