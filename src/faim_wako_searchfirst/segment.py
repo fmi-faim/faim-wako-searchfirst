@@ -9,15 +9,17 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Callable, Union
+from typing import Callable, List, Union
 
 import confuse
 import numpy as np
 from numpy import ndarray
 from rich.progress import track
 from scipy.ndimage import binary_fill_holes
+from skimage.color import label2rgb
 from skimage.io import imread
 from skimage.measure import label, regionprops
+from tifffile import imwrite
 
 
 def run(folder: Union[str, Path], configfile: str):
@@ -56,7 +58,7 @@ def run(folder: Union[str, Path], configfile: str):
 def select_files(
         folder: Path,
         channel: str = "C01",
-) -> list[Path]:
+) -> List[Path]:
     """Filter all TIFs in folder starting with folder name - and containing channel ID."""
     return sorted(folder.rglob(folder.name + "*" + channel + ".[Tt][Ii][Ff]"))
 
@@ -81,7 +83,7 @@ def segment(
     mask = img > threshold
     if include_holes:
         mask = binary_fill_holes(mask)
-    labeled_image = label(mask)
+    labeled_image = label(mask).astype(np.uint16)
     regions = regionprops(labeled_image)
     for region in regions:
         if region.area < min_size or region.eccentricity > max_eccentricity:
@@ -102,7 +104,10 @@ def segment_file(
 
 def filter_objects_by_intensity(labels, img, min_intensity):
     """Filter objects in 'labels' by intensity in 'img'."""
-    # TODO implement object filtering
+    regions = regionprops(labels, img)
+    for region in regions:
+        if region.intensity_mean < min_intensity:
+            labels[labels == region.label] = 0
     return labels
 
 
@@ -134,7 +139,7 @@ def report_center_coordinates(labeled_img, path):
     with open(path, "w", newline="") as csv_file:
         c = csv.writer(csv_file)
         for region in regions:
-            c.writerow([region.label, *region.centroid])
+            c.writerow([region.label, *reversed(region.centroid)])
 
 
 def get_other_channel_file(tif_file: Path, target_channel: str) -> Path:
@@ -146,7 +151,6 @@ def get_other_channel_file(tif_file: Path, target_channel: str) -> Path:
     for candidate in candidate_files:
         n = pattern.fullmatch(candidate.name)
         if (n is not None) and (n.group(4) == target_channel) and (m.group(1) == n.group(1)):
-            logging.info(f"Found file {candidate.name}.")
             return candidate
     raise FileNotFoundError(f"No matching file for channel {target_channel}.")
 
@@ -161,6 +165,14 @@ def additional_analysis(
     return filter_fn(labels, intensity_image, min_intensity)
 
 
+def save_segmentation_image(folder_path, filename, img, labels):
+    """Save segmentation overlay as RGB image into separate folder."""
+    destination_folder = folder_path.parent / (folder_path.name + "_segmentation")
+    destination_folder.mkdir(exist_ok=True)
+    preview = label2rgb(labels, image=img).astype(np.uint16)
+    imwrite(destination_folder / filename, preview, imagej=True)
+
+
 def process(
         folder: Path,
         file_selection_params: dict,
@@ -171,7 +183,11 @@ def process(
         logger=logging,
 ) -> None:
     """Segment images with the provided segmentation parameters."""
+    logger.info("File selection parameters: " + json.dumps(file_selection_params, indent=4))
     logger.info("Segmentation parameters: " + json.dumps(segmentation_params, indent=4))
+    logger.info("Additional analysis parameters: " + json.dumps(additional_analysis_params, indent=4))
+    logger.info("Output parameters: " + json.dumps(output_params, indent=4))
+    logger.info("Grid sampling parameters: " + json.dumps(grid_sampling_params, indent=4))
 
     tif_files = select_files(folder=folder, **file_selection_params)
 
@@ -179,7 +195,6 @@ def process(
     for tif_file in track(tif_files):
         # file -> segmentation mask and image
         img, labels = segment_file(tif_file, segment, **segmentation_params)
-        logger.info("include_holes: " + str(segmentation_params["include_holes"]))
 
         # addition analysis (e.g. filter by intensity in other channel)
         labels = additional_analysis(
@@ -195,6 +210,6 @@ def process(
             report_center_coordinates(labels, csv_path)
 
         # mask + image -> preview
-        # TODO implement preview rendering
+        save_segmentation_image(tif_file.parent, tif_file.name, img, labels)
 
     logger.info(f"Finished processing {len(tif_files)} image(s).")
