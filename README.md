@@ -6,6 +6,7 @@ SPDX-License-Identifier: MIT
 
 # FAIM Wako SearchFirst
 
+[![test](https://github.com/fmi-faim/faim-wako-searchfirst/actions/workflows/test.yml/badge.svg)](https://github.com/fmi-faim/faim-wako-searchfirst/actions/workflows/test.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/faim-wako-searchfirst.svg)](https://pypi.org/project/faim-wako-searchfirst)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/faim-wako-searchfirst.svg)](https://pypi.org/project/faim-wako-searchfirst)
 
