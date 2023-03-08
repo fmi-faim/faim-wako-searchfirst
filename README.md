@@ -37,7 +37,14 @@ segmentation:
     threshold: 128
     include_holes: yes
     min_size: 10
+    max_size: 99999999999
+    min_eccentricity: 0.0
     max_eccentricity: 0.4
+bounding_box:
+    min_x: 0
+    min_y: 0
+    max_x: 256
+    max_y: 256
 additional_analysis:
     enabled: yes
     target_channel: C03
