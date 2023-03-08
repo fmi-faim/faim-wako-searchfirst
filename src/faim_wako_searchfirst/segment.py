@@ -69,6 +69,8 @@ def segment(
         threshold: int,
         include_holes: bool,
         min_size: int,
+        max_size: int,
+        min_eccentricity: float,
         max_eccentricity: float,
 ):
     """Segment a given image by global thresholding.
@@ -77,6 +79,8 @@ def segment(
     :param threshold: global threshold
     :param include_holes: if true, holes will be filled
     :param min_size: minimum object size
+    :param max_size: maximum object size
+    :param min_eccentricity: minimum eccentricity of object
     :param max_eccentricity: maximum eccentricity of object
 
     :return: a label image representing the detected objects
@@ -87,7 +91,7 @@ def segment(
     labeled_image = label(mask).astype(np.uint16)
     regions = regionprops(labeled_image)
     for region in regions:
-        if region.area < min_size or region.eccentricity > max_eccentricity:
+        if not min_size <= region.area <= max_size or not min_eccentricity <= region.eccentricity <= max_eccentricity:
             labeled_image[labeled_image == region.label] = 0
     return labeled_image
 

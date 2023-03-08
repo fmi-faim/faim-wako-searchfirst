@@ -62,6 +62,8 @@ def test_process_test_set(_data_path):
         "threshold": 1,
         "include_holes": False,
         "min_size": 10,
+        "max_size": 9999999,
+        "min_eccentricity": 0.0,
         "max_eccentricity": 0.9,
     }
     additional_analysis_params = {
@@ -113,6 +115,8 @@ def test_process_invalid_second_channel(_data_path):
         "threshold": 1,
         "include_holes": False,
         "min_size": 10,
+        "max_size": 9999999,
+        "min_eccentricity": 0.0,
         "max_eccentricity": 0.9,
     }
     additional_analysis_params = {

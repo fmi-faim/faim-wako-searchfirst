@@ -8,6 +8,8 @@ segmentation:
     threshold: 128
     include_holes: yes
     min_size: 10
+    max_size: 99999999999
+    min_eccentricity: 0.0
     max_eccentricity: 0.4
 additional_analysis:
     enabled: yes
