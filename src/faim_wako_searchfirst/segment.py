@@ -49,6 +49,7 @@ def run(folder: Union[str, Path], configfile: str):
         folder_path,
         file_selection_params=config["file_selection"].get(),
         segmentation_params=config["segmentation"].get(),
+        bounding_box_params=config["bounding_box"].get(),
         additional_analysis_params=config["additional_analysis"].get(),
         output_params=config["output"].get(),
         grid_sampling_params=config["grid_sampling"].get(),
@@ -179,10 +180,20 @@ def save_segmentation_image(folder_path, filename, img, labels):
     imsave(destination_folder / (Path(filename).stem + '.png'), preview)
 
 
+def apply_bounding_box(labels, min_x: int, min_y: int, max_x: int, max_y: int):
+    """Set everything outside the bounding box to zero."""
+    labels[0:max(min_y, 0), :] = 0
+    labels[:, 0:max(min_x, 0)] = 0
+    y, x = labels.shape
+    labels[min(max_y, y):y, :] = 0
+    labels[:, min(max_x, x):x] = 0
+
+
 def process(
         folder: Path,
         file_selection_params: dict,
         segmentation_params: dict,
+        bounding_box_params: dict,
         additional_analysis_params: dict,
         output_params: dict,
         grid_sampling_params: dict,
@@ -201,6 +212,9 @@ def process(
     for tif_file in track(tif_files):
         # file -> segmentation mask and image
         img, labels = segment_file(tif_file, segment, **segmentation_params)
+
+        # mask everything outside bounding box
+        apply_bounding_box(labels, **bounding_box_params)
 
         # addition analysis (e.g. filter by intensity in other channel)
         labels = additional_analysis(
