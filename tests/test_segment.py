@@ -66,6 +66,12 @@ def test_process_test_set(_data_path):
         "min_eccentricity": 0.0,
         "max_eccentricity": 0.9,
     }
+    bounding_box_params = {
+        "min_x": 0,
+        "min_y": 0,
+        "max_x": 256,
+        "max_y": 256,
+    }
     additional_analysis_params = {
         "enabled": False,
     }
@@ -76,11 +82,12 @@ def test_process_test_set(_data_path):
 
     process(
         _data_path,
-        file_selection_params,
-        segmentation_params,
-        additional_analysis_params,
-        output_params,
-        grid_sampling_params,
+        file_selection_params=file_selection_params,
+        segmentation_params=segmentation_params,
+        bounding_box_params=bounding_box_params,
+        additional_analysis_params=additional_analysis_params,
+        output_params=output_params,
+        grid_sampling_params=grid_sampling_params,
     )
 
     csv_path = _data_path / "TestSet_D07_T0001F002L01A02Z01C01.csv"
@@ -119,6 +126,12 @@ def test_process_invalid_second_channel(_data_path):
         "min_eccentricity": 0.0,
         "max_eccentricity": 0.9,
     }
+    bounding_box_params = {
+        "min_x": 0,
+        "min_y": 0,
+        "max_x": 256,
+        "max_y": 256,
+    }
     additional_analysis_params = {
         "enabled": True,
         "target_channel": "C04",
@@ -129,9 +142,10 @@ def test_process_invalid_second_channel(_data_path):
     with pytest.raises(FileNotFoundError):
         process(
             _data_path,
-            file_selection_params,
-            segmentation_params,
-            additional_analysis_params,
-            output_params,
-            grid_sampling_params,
+            file_selection_params=file_selection_params,
+            segmentation_params=segmentation_params,
+            bounding_box_params=bounding_box_params,
+            additional_analysis_params=additional_analysis_params,
+            output_params=output_params,
+            grid_sampling_params=grid_sampling_params,
         )
