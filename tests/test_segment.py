@@ -149,3 +149,53 @@ def test_process_invalid_second_channel(_data_path):
             output_params=output_params,
             grid_sampling_params=grid_sampling_params,
         )
+
+
+def test_process_bounding_box(_data_path):
+    """Test bounding box for segmentation."""
+    file_selection_params = {
+        "channel": "C01",
+    }
+    segmentation_params = {
+        "threshold": 1,
+        "include_holes": False,
+        "min_size": 10,
+        "max_size": 9999999,
+        "min_eccentricity": 0.0,
+        "max_eccentricity": 0.9,
+    }
+    bounding_box_params = {
+        "min_x": 180,
+        "min_y": 30,
+        "max_x": 1000000,
+        "max_y": 110,
+    }
+    additional_analysis_params = {
+        "enabled": False,
+    }
+    output_params = {
+        "type": "centers",
+    }
+    grid_sampling_params = {}
+
+    process(
+        _data_path,
+        file_selection_params=file_selection_params,
+        segmentation_params=segmentation_params,
+        bounding_box_params=bounding_box_params,
+        additional_analysis_params=additional_analysis_params,
+        output_params=output_params,
+        grid_sampling_params=grid_sampling_params,
+    )
+
+    csv_path = _data_path / "TestSet_D07_T0001F002L01A02Z01C01.csv"
+    assert csv_path.exists()
+
+    with open(csv_path, 'r') as csv_file:
+        reader = csv.reader(csv_file)
+        entries = list(reader)
+        assert len(entries) == 1, "Incorrect number of objects detected."
+        assert entries[0] == ['2', '209.6689930209372', '67.93419740777667']
+
+    segmentation_folder = _data_path.parent / (_data_path.name + "_segmentation")
+    assert sum(1 for _ in segmentation_folder.glob("*")) == 1
