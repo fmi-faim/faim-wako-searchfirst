@@ -16,10 +16,11 @@ import numpy as np
 from numpy import ndarray
 from rich.progress import track
 from scipy.ndimage import binary_fill_holes
+from skimage import img_as_float
 from skimage.color import label2rgb
-from skimage.io import imread
+from skimage.exposure import rescale_intensity
+from skimage.io import imread, imsave
 from skimage.measure import label, regionprops
-from tifffile import imwrite
 
 
 def run(folder: Union[str, Path], configfile: str):
@@ -169,8 +170,9 @@ def save_segmentation_image(folder_path, filename, img, labels):
     """Save segmentation overlay as RGB image into separate folder."""
     destination_folder = folder_path.parent / (folder_path.name + "_segmentation")
     destination_folder.mkdir(exist_ok=True)
-    preview = label2rgb(labels, image=img).astype(np.uint16)
-    imwrite(destination_folder / filename, preview, imagej=True)
+    rescaled = rescale_intensity(img_as_float(img))
+    preview = label2rgb(labels, image=rescaled)
+    imsave(destination_folder / (Path(filename).stem + '.png'), preview)
 
 
 def process(
