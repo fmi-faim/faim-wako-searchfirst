@@ -16,7 +16,7 @@ import numpy as np
 from numpy import ndarray
 from rich.progress import track
 from scipy.ndimage import binary_fill_holes
-from skimage import img_as_float
+from skimage import img_as_float, img_as_ubyte
 from skimage.color import label2rgb
 from skimage.exposure import rescale_intensity
 from skimage.io import imread, imsave
@@ -73,6 +73,7 @@ def segment(
         max_size: int,
         min_eccentricity: float,
         max_eccentricity: float,
+        logger=logging,
 ):
     """Segment a given image by global thresholding.
 
@@ -83,6 +84,7 @@ def segment(
     :param max_size: maximum object size
     :param min_eccentricity: minimum eccentricity of object
     :param max_eccentricity: maximum eccentricity of object
+    :param logger:
 
     :return: a label image representing the detected objects
     """
@@ -91,6 +93,7 @@ def segment(
         mask = binary_fill_holes(mask)
     labeled_image = label(mask).astype(np.uint16)
     regions = regionprops(labeled_image)
+    logger.info(f"Found {len(regions)} connected components.")
     for region in regions:
         if not min_size <= region.area <= max_size or not min_eccentricity <= region.eccentricity <= max_eccentricity:
             labeled_image[labeled_image == region.label] = 0
@@ -100,11 +103,12 @@ def segment(
 def segment_file(
         tif: str,
         segment_fn: Callable,
+        logger=logging,
         **kwargs,
 ):
     """Segment a tif file using a provided segmentation function."""
     img = imread(tif)
-    labeled_image = segment_fn(img, **kwargs)
+    labeled_image = segment_fn(img, logger=logger, **kwargs)
     return img, labeled_image
 
 
@@ -177,7 +181,7 @@ def save_segmentation_image(folder_path, filename, img, labels):
     destination_folder.mkdir(exist_ok=True)
     rescaled = rescale_intensity(img_as_float(img))
     preview = label2rgb(labels, image=rescaled)
-    imsave(destination_folder / (Path(filename).stem + '.png'), preview)
+    imsave(destination_folder / (Path(filename).stem + '.png'), img_as_ubyte(preview))
 
 
 def apply_bounding_box(labels, min_x: int, min_y: int, max_x: int, max_y: int):
@@ -211,7 +215,7 @@ def process(
     # Write CSV file for each TIF
     for tif_file in track(tif_files):
         # file -> segmentation mask and image
-        img, labels = segment_file(tif_file, segment, **segmentation_params)
+        img, labels = segment_file(tif_file, segment, logger=logger, **segmentation_params)
 
         # mask everything outside bounding box
         apply_bounding_box(labels, **bounding_box_params)
