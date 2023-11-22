@@ -31,38 +31,39 @@ pip install faim-wako-searchfirst
 Configuration is managed in a `config.yml` file:
 
 ```yaml
-file_selection:
+# Required
+file_selection:  # criteria for file selection in case of multiple channels/slices per position
     channel: C01
-segmentation:
+process:  # choose method how to segment, filter, and sample the objects
+    segment: threshold  # choices: threshold, cellpose
+    filter: [bounding_box, area, solidity, intensity]
+    sample: centers  # choices: centers, grid_overlap, dense_grid
+
+# Each subsequent section provides arguments to one of the methods defined in 'process'
+threshold:
     threshold: 128
     include_holes: yes
-    min_size: 10
-    max_size: 99999999999
-    min_eccentricity: 0.0
-    max_eccentricity: 0.4
 bounding_box:
-    min_x: 0
+    min_x: 64
     min_y: 0
     max_x: 256
-    max_y: 256
-additional_analysis:
-    enabled: yes
+    max_y: 190
+area:
+    min_area: 100
+    max_area: 10000
+solidity:
+    min_solidity: 0.9
+    max_solidity: 1.0
+intensity:
     target_channel: C03
     min_intensity: 128
-output:
-    type: grid
-grid_sampling:
-    mag_first_pass: 4
-    mag_second_pass: 40
-    overlap_percent: 0
-    offset_grid_origin_percent: 50
 ```
 
 The Python script called by Wako Automation Software needs to accept the acquisition folder `folder_path` as only parameter:
 
 ```python
-import typer as typer
-from faim_wako_searchfirst.segment import run
+import typer
+from faim_wako_searchfirst.main import run
 
 def main(folder_path: str):
     run(folder=folder_path, configfile="config.yml")
