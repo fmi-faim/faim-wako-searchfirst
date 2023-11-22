@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2023 Friedrich Miescher Institute for Biomedical Research (FMI), Basel (Switzerland)
+#
+# SPDX-License-Identifier: MIT
+
+# Required
+file_selection:  # criteria for file selection in case of multiple channels/slices per position
+    channel: C01
+process:  # choose method how to segment, filter, and sample the objects
+    segment: cellpose
+    filter: []
+    sample: centers
+
+# Each subsequent section provides arguments to one of the methods defined in 'process'
+cellpose:
+    diameter: 10.0
+    pretrained_model: cyto2
+    cellprob_threshold: 0.0
+    flow_threshold: 0.4
