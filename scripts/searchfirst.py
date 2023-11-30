@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 """SearchFirst script to run a simple segmentation."""
-import typer as typer
-from faim_wako_searchfirst.segment import run
+import typer
+from faim_wako_searchfirst.main import run
 
 
 def main(folder_path: str):
