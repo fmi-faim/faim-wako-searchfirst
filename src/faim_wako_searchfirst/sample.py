@@ -26,7 +26,6 @@ def dense_grid(
         block_size=(binning_factor, binning_factor),
         func=np.max,
     )
-    print(downscaled.shape)
     with open(output_path, "w", newline="") as csv_file:
         c = csv.writer(csv_file)
         count = 0
