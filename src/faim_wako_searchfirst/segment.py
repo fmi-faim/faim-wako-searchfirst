@@ -15,6 +15,7 @@ from typing import Union
 import numpy as np
 from cellpose import models
 from scipy.ndimage import binary_fill_holes
+from skimage.filters import gaussian
 from skimage.measure import label, regionprops
 
 
@@ -22,6 +23,7 @@ def threshold(
     img,
     threshold: int,
     include_holes: bool,
+    gaussian_sigma: float = 0.0,
     logger=logging,
 ):
     """Segment a given image by global thresholding.
@@ -33,6 +35,8 @@ def threshold(
 
     :return: a label image representing the detected objects
     """
+    if gaussian_sigma > 0:
+        img = gaussian(img, sigma=gaussian_sigma, preserve_range=True)
     mask = img > threshold
     if include_holes:
         mask = binary_fill_holes(mask)
