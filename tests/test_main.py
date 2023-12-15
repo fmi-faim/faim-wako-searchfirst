@@ -55,6 +55,15 @@ def test_partial(_image, tmp_path):
     )
     assert np.max(labels) == 7
 
+    # segment with gaussian
+    labels_blurred: np.ndarray = threshold(
+        _image,
+        threshold=128,
+        include_holes=True,
+        gaussian_sigma=5.5,
+    )
+    assert np.max(labels_blurred) == 4
+
     # filter
     label2 = labels.copy()
     bounding_box(
