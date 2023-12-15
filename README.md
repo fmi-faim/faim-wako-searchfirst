@@ -44,6 +44,7 @@ process:  # choose method how to segment, filter, and sample the objects
 threshold:
     threshold: 128
     include_holes: yes
+    gaussian_sigma: 2.0 # optional 
 bounding_box:
     min_x: 64
     min_y: 0
