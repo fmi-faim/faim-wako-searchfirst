@@ -11,7 +11,9 @@ The processing workflow consists of three parts:
 """
 
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 from typing import List, Union
 
@@ -20,7 +22,7 @@ from skimage import img_as_float, img_as_ubyte
 from skimage.color import label2rgb
 from skimage.exposure import rescale_intensity
 from skimage.io import imread, imsave
-from tqdm.rich import tqdm
+from tqdm import tqdm
 
 from faim_wako_searchfirst import filter, sample, segment
 
@@ -61,6 +63,16 @@ def run(folder: Union[str, Path], configfile: Union[str, Path]):
 
     logger.info(f"Found {len(tif_files)} matching files.")
 
+    # Process
+    process = partial(_process_tif, config=config, logger=logger)
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(process, tif_file) for tif_file in tif_files]
+        for _ in tqdm(as_completed(futures), total=len(futures)):
+            pass
+    logger.info("Done processing.")
+
+
+def _process_tif(tif_file, config, logger):
     # Setup
     # Segment
     segment_method = config["process"]["segment"].get(str)
@@ -77,38 +89,36 @@ def run(folder: Union[str, Path], configfile: Union[str, Path]):
     sample_config = config[sample_method].get(confuse.Optional(dict, default={}))
     sample_fn = getattr(sample, sample_method)
 
-    # Process
-    for tif_file in tqdm(tif_files):
-        # Read image
-        img = imread(tif_file)
+    # Read image
+    img = imread(tif_file)
 
-        # Segment
-        labels = segment_fn(
-            img,
-            **segment_config,
-            logger=logger,
-        )
+    # Segment
+    labels = segment_fn(
+        img,
+        **segment_config,
+        logger=logger,
+    )
 
-        # Filter
-        for name, func in filter_funcs.items():
-            conf = config[name].get(confuse.Optional(dict, default={}))
-            func(
-                tif_file,
-                labels,
-                **conf,
-            )
-
-        # Sample
-        # mask -> csv
-        csv_path = tif_file.parent / (tif_file.stem + ".csv")
-        sample_fn(
+    # Filter
+    for name, func in filter_funcs.items():
+        conf = config[name].get(confuse.Optional(dict, default={}))
+        func(
+            tif_file,
             labels,
-            csv_path,
-            **sample_config,
+            **conf,
         )
 
-        # mask + image -> preview
-        _save_segmentation_image(tif_file.parent, tif_file.name, img, labels)
+    # Sample
+    # mask -> csv
+    csv_path = tif_file.parent / (tif_file.stem + ".csv")
+    sample_fn(
+        labels,
+        csv_path,
+        **sample_config,
+    )
+
+    # mask + image -> preview
+    _save_segmentation_image(tif_file.parent, tif_file.name, img, labels)
 
 
 def _select_files(

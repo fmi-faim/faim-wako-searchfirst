@@ -16,7 +16,7 @@ import numpy as np
 from cellpose import models
 from scipy.ndimage import binary_fill_holes
 from skimage.filters import gaussian
-from skimage.measure import label, regionprops
+from skimage.measure import label
 
 
 def threshold(
@@ -40,10 +40,9 @@ def threshold(
     mask = img > threshold
     if include_holes:
         mask = binary_fill_holes(mask)
-    labeled_image = label(mask).astype(np.uint16)
-    regions = regionprops(labeled_image)
-    logger.info(f"Found {len(regions)} connected components.")
-    return labeled_image
+    labeled_image, num_objects = label(mask, return_num=True)
+    logger.info(f"Found {num_objects} connected components.")
+    return labeled_image.astype(np.uint16)
 
 
 def cellpose(
