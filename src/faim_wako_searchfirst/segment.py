@@ -13,7 +13,6 @@ from pathlib import Path
 from typing import Union
 
 import numpy as np
-from cellpose import models
 from scipy.ndimage import binary_fill_holes
 from skimage.filters import gaussian
 from skimage.measure import label
@@ -61,6 +60,8 @@ def cellpose(
 
     :return: a label image representing the detected objects
     """
+    from cellpose import models
+
     logger.info(f"Load cellpose model: {pretrained_model}")
     model: models.CellposeModel = models.CellposeModel(
         pretrained_model=pretrained_model,
@@ -72,3 +73,23 @@ def cellpose(
         **kwargs,
     )
     return mask
+
+
+def apoc_classifier(
+    img,
+    classifier_path: Path,
+    background_label: int = None,
+    logger=logging,
+):
+    """Apply a PixelClassifier.cl file.
+
+    Use apoc (https://github.com/haesleinhuepf/apoc)
+    to apply a trained classifier to the input image.
+    """
+    import apoc
+
+    clf = apoc.PixelClassifier(opencl_filename=classifier_path)
+    mask = clf.predict(image=img)
+    labeled_image, num_objects = label(mask, return_num=True, background=background_label)
+    logger.info(f"Found {num_objects} connected components.")
+    return labeled_image.astype(np.uint16)
