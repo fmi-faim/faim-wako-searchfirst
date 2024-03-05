@@ -47,7 +47,6 @@ Source = "https://github.com/fmi-faim/faim-wako-searchfirst"
 source = "vcs"
 
 [tool.hatch.envs.default]
-platforms = ["windows", "macos"]
 dependencies = [
   "pandas",
   "pytest",
