@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2024 Friedrich Miescher Institute for Biomedical Research (FMI), Basel (Switzerland)
+#
+# SPDX-License-Identifier: MIT
+
+# Required
+file_selection:  # criteria for file selection in case of multiple channels/slices per position
+    channel: C01
+process:  # choose method how to segment, filter, and sample the objects
+    segment: apoc_classifier
+    filter: [area]
+    sample: centers
+
+# Each subsequent section provides arguments to one of the methods defined in 'process'
+area:
+    min_area: 100
+    max_area: 1000000
+apoc_classifier:
+    classifier_path: "tests/resources/PixelClassifier.cl"
+    background_label: 2

@@ -27,8 +27,10 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
+  "apoc",
   "cellpose",
   "confuse",
+  "pyopencl",
   "rich",
   "scikit-image",
   "tqdm",
@@ -50,6 +52,16 @@ dependencies = [
   "pytest",
   "pytest-cov",
 ]
+
+[tool.hatch.envs.linux]
+platforms = ["linux"]
+dependencies = [
+  "pandas",
+  "pocl-binary-distribution",
+  "pytest",
+  "pytest-cov",
+]
+
 [tool.hatch.envs.default.scripts]
 cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=faim_wako_searchfirst --cov=tests {args}"
 no-cov = "cov --no-cov {args}"
