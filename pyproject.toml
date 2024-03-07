@@ -29,8 +29,10 @@ classifiers = [
 dependencies = [
   "cellpose",
   "confuse",
+  "pyimagej",
   "rich",
   "scikit-image",
+  "scyjava",
   "tqdm",
   "typer"
 ]
