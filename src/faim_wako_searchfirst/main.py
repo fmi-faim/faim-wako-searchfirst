@@ -24,7 +24,7 @@ from skimage.exposure import rescale_intensity
 from skimage.io import imread, imsave
 from tqdm import tqdm
 
-from faim_wako_searchfirst import filter, sample, segment
+from faim_wako_searchfirst import filter, preprocess, sample, segment
 
 
 def run(folder: Union[str, Path], configfile: Union[str, Path]):
@@ -60,8 +60,20 @@ def run(folder: Union[str, Path], configfile: Union[str, Path]):
         folder=folder_path,
         **(config["file_selection"].get()),
     )
-
     logger.info(f"Found {len(tif_files)} matching files.")
+
+    # Optional preprocessing
+    if "preprocess" in config.keys() and config["preprocess"] is not None:
+        preprocess_method = config["preprocess"].get(str)
+        preprocess_config = config[preprocess_method].get()
+        logger.info(f"Pre-process using '{preprocess_method}'.")
+        preprocess_fn = getattr(preprocess, preprocess_method)
+        tif_files = preprocess_fn(
+            tif_files,
+            folder_path,
+            **preprocess_config,
+        )
+
 
     # Process
     process = partial(_process_tif, config=config, logger=logger)

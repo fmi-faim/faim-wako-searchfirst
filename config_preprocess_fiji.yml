@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2023 Friedrich Miescher Institute for Biomedical Research (FMI), Basel (Switzerland)
+#
+# SPDX-License-Identifier: MIT
+
+# Required
+file_selection:  # criteria for file selection in case of multiple channels/slices per position
+    channel: C01
+preprocess: fiji_script
+process:  # choose method how to segment, filter, and sample the objects
+    segment: none
+    filter: []
+    sample: centers
+
+# Each subsequent section provides arguments to one of the methods defined in 'process'
+fiji_script:
+    fiji_executable: C:\Utilities\ImageJ\Fiji.app\ImageJ-win64.exe
+    fiji_script_path: C:\code\fmi-faim\faim-wako-searchfirst\tests\resources\apply_weka_classifier.groovy
+    folder_suffix: preprocessed
+
+threshold:
+    threshold: 128
+    include_holes: yes
+bounding_box:
+    min_x: 64
+    min_y: 0
+    max_x: 256
+    max_y: 190
+area:
+    min_area: 100
+    max_area: 10000
+solidity:
+    min_solidity: 0.9
+    max_solidity: 1.0
+intensity:
+    target_channel: C03
+    min_intensity: 128

@@ -19,6 +19,15 @@ from skimage.filters import gaussian
 from skimage.measure import label
 
 
+def none(
+    img,
+    background_value = 0,
+    logger=logging,
+):
+    """Return label image from input mask."""
+    return label(img, background=background_value)
+
+
 def threshold(
     img,
     threshold: int,
