@@ -12,7 +12,9 @@ from pathlib import Path
 
 import numpy as np
 from numpy import ndarray
-from skimage.measure import block_reduce, regionprops
+from skimage.filters.rank import maximum
+from skimage.measure import block_reduce, label, regionprops
+from skimage.morphology import rectangle
 
 
 def dense_grid(
@@ -30,14 +32,14 @@ def dense_grid(
         c = csv.writer(csv_file)
         count = 0
         it = np.nditer(downscaled, flags=["multi_index"])
-        for label in it:
-            if label > 0:
+        for label_value in it:
+            if label_value > 0:
                 c.writerow([count] + _grid_coordinate(it.multi_index, binning_factor))
                 count += 1
 
 
 def _grid_coordinate(index, factor):
-    return [(index[1] + 0.5) * factor, (index[0] + 0.5) * factor]
+    return [(index[1] + 0.5) * factor, (index[0] + 0.5) * factor]  # TODO add 0.5 here?
 
 
 def grid_overlap(
@@ -97,27 +99,11 @@ def _filter_points(points, weights, y_threshold, x_threshold):
     return keep_indices
 
 
-def object_centered_grid(
+def _sample_grid_on_regions(
     labeled_img: ndarray,
-    path: Path,
-    mag_first_pass: float,
-    mag_second_pass: float,
-    overlap_ratio: float = 0.0,
+    tile_size_y: float,
+    tile_size_x: float,
 ):
-    """Sample each labeled object with a centered grid of tiles.
-
-    If the object fits into a single field of view, record just the centroid coordinate.
-    Otherwise, compute how many tiles are required to fit the object, and record only
-    those grid coordinates that cover the object mask.
-
-    For objects where the resulting fields of view would be overlapping,
-    only keep the largest object and discard all others.
-    """
-    factor = mag_first_pass / mag_second_pass
-    shift_percent = 1.0 - overlap_ratio
-    tile_size_y = labeled_img.shape[0] * factor * shift_percent
-    tile_size_x = labeled_img.shape[1] * factor * shift_percent
-
     props = regionprops(label_image=labeled_img)
     labels = []
     coordinates = []
@@ -152,6 +138,35 @@ def object_centered_grid(
         coordinates.extend(valid_points)
         areas.extend([p.area] * len(valid_points))
         labels.extend([p.label] * len(valid_points))
+    return coordinates, areas, labels
+
+
+def object_centered_grid(
+    labeled_img: ndarray,
+    path: Path,
+    mag_first_pass: float,
+    mag_second_pass: float,
+    overlap_ratio: float = 0.0,
+):
+    """Sample each labeled object with a centered grid of tiles.
+
+    If the object fits into a single field of view, record just the centroid coordinate.
+    Otherwise, compute how many tiles are required to fit the object, and record only
+    those grid coordinates that cover the object mask.
+
+    For objects where the resulting fields of view would be overlapping,
+    only keep the largest object and discard all others.
+    """
+    factor = mag_first_pass / mag_second_pass
+    shift_percent = 1.0 - overlap_ratio
+    tile_size_y = labeled_img.shape[0] * factor * shift_percent
+    tile_size_x = labeled_img.shape[1] * factor * shift_percent
+
+    coordinates, areas, labels = _sample_grid_on_regions(
+        labeled_img=labeled_img,
+        tile_size_y=tile_size_y,
+        tile_size_x=tile_size_x,
+    )
 
     # filter overlapping coordinates
     keep_points = _filter_points(
@@ -162,10 +177,47 @@ def object_centered_grid(
     )
 
     coordinates = np.array(coordinates)[keep_points]
-    areas = np.array(areas)[keep_points]
     labels = np.array(labels)[keep_points]
 
     with open(path, "w", newline="") as csv_file:
         c = csv.writer(csv_file)
-        for label, point in zip(labels, coordinates):
-            c.writerow([label, point[1], point[0]])
+        for label_value, point in zip(labels, coordinates):
+            c.writerow([label_value, *reversed(point)])
+
+
+def region_centered_grid(
+    labeled_img: ndarray,
+    path: Path,
+    mag_first_pass: float,
+    mag_second_pass: float,
+    overlap_ratio: float = 0.0,
+):
+    """Sample optimal grid for each region of objects that are close to each other.
+
+    The grid is computed centered on each region, with an optional specified overlap.
+    """
+    factor = mag_first_pass / mag_second_pass
+    shift_percent = 1.0 - overlap_ratio
+    tile_size_y = labeled_img.shape[0] * factor * shift_percent
+    tile_size_x = labeled_img.shape[1] * factor * shift_percent
+    # dilate
+    mask = labeled_img > 0
+    footprint = rectangle(
+        np.ceil(tile_size_y).astype(int), np.ceil(tile_size_x).astype(int)
+    )  # , decomposition="separable"
+    dilated = maximum(image=mask.astype(np.uint8), footprint=footprint)
+    # label
+    regions = label(dilated)
+    # reconstruct
+    reconstructed = np.where(mask, regions, 0)
+
+    coordinates, _, labels = _sample_grid_on_regions(
+        labeled_img=reconstructed,
+        tile_size_y=tile_size_y,
+        tile_size_x=tile_size_x,
+    )
+
+    with open(path, "w", newline="") as csv_file:
+        c = csv.writer(csv_file)
+        for label_value, point in zip(labels, coordinates):
+            c.writerow([label_value, *reversed(point)])
