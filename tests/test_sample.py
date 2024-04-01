@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 """Test faim_wako_searchfirst.sample module."""
+
 from pathlib import Path
 
 import pandas as pd

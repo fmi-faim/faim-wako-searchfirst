@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 """SearchFirst script to run a simple segmentation."""
+
 import typer
 from faim_wako_searchfirst.main import run
 
