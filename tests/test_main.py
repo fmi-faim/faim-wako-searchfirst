@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 """Test faim_wako_searchfirst module."""
+
 import csv
 import shutil
 from pathlib import Path
