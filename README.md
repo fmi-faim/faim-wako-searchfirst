@@ -38,13 +38,18 @@ file_selection:  # criteria for file selection in case of multiple channels/slic
 process:  # choose method how to segment, filter, and sample the objects
     segment: threshold  # choices: threshold, cellpose
     filter: [bounding_box, area, solidity, intensity]
-    sample: centers  # choices: centers, grid_overlap, dense_grid
+    sample: centers  # choices: centers, grid_overlap, dense_grid, object_centered_grid, region_centered_grid
 
-# Each subsequent section provides arguments to one of the methods defined in 'process'
+# Each subsequent section provides arguments to one of the methods defined in 'process'.
+# Config sections for methods not selected above will be ignored.
+
+# segment
 threshold:
     threshold: 128
     include_holes: yes
-    gaussian_sigma: 2.0 # optional 
+    gaussian_sigma: 2.0  # default: 0.0 
+
+# filter
 bounding_box:
     min_x: 64
     min_y: 0
@@ -59,6 +64,22 @@ solidity:
 intensity:
     target_channel: C03
     min_intensity: 128
+
+# sample
+dense_grid:
+    binning_factor: 20  # default: 50
+grid_overlap:
+    mag_first_pass: 4
+    mag_second_pass: 60
+    overlap_ratio: 0.05  # default: 0
+object_centered_grid:
+    mag_first_pass: 4
+    mag_second_pass: 60
+    overlap_ratio: 0.05  # default: 0
+region_centered_grid:
+    mag_first_pass: 4
+    mag_second_pass: 60
+    overlap_ratio: 0.05  # default: 0
 ```
 
 The Python script called by Wako Automation Software needs to accept the acquisition folder `folder_path` as only parameter:
