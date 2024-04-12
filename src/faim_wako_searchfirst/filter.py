@@ -15,6 +15,7 @@ from pathlib import Path
 
 from numpy import ndarray
 from skimage.measure import regionprops
+from skimage.segmentation import expand_labels
 from tifffile import imread
 
 
@@ -40,6 +41,23 @@ def area(
             labels[labels == region.label] = 0
 
 
+def feature(
+    tif_file: Path,
+    labels: ndarray,
+    feature: str,
+    min_value: float,
+    max_value: float,
+):
+    """Filter objects in 'labels' by specified feature value range."""
+    regions = regionprops(labels)
+    if hasattr(regions[0], feature):
+        for region in regions:
+            if not min_value <= getattr(region, feature) <= max_value:
+                labels[labels == region.label] = 0
+    else:
+        raise AttributeError(f"'regionprops' object has no attribute '{feature}'")
+
+
 def solidity(
     tif_file: Path,
     labels: ndarray,
@@ -51,6 +69,15 @@ def solidity(
     for region in regions:
         if not min_solidity <= region.solidity <= max_solidity:
             labels[labels == region.label] = 0
+
+
+def dilate(
+    tif_file: Path,
+    labels: ndarray,
+    pixel_distance: float = 10.0,
+):
+    """Dilate objects by specified amount."""
+    labels[:] = expand_labels(label_image=labels, distance=pixel_distance)
 
 
 def intensity(
