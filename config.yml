@@ -1,19 +1,34 @@
+# yamllint disable-line rule:line-length
 # SPDX-FileCopyrightText: 2023 Friedrich Miescher Institute for Biomedical Research (FMI), Basel (Switzerland)
 #
 # SPDX-License-Identifier: MIT
-
+---
 # Required
-file_selection:  # criteria for file selection in case of multiple channels/slices per position
+
+# criteria for file selection in case of multiple channels/slices per position
+file_selection:
     channel: C01
-process:  # choose method how to segment, filter, and sample the objects
+
+# choose method how to segment, filter, and sample the objects
+process:
+    # segment methods: threshold, cellpose
     segment: threshold
+    # filter methods: bounding_box, area, solidity, intensity
     filter: [bounding_box, area, solidity, intensity]
+    # sample methods: centers, grid_overlap, dense_grid,
+    #                 object_centered_grid, region_centered_grid
     sample: centers
 
-# Each subsequent section provides arguments to one of the methods defined in 'process'
+# Each section below provides arguments to one of the methods set in 'process'.
+# Config sections for methods not selected above will be ignored.
+
+# segment
 threshold:
     threshold: 128
-    include_holes: yes
+    include_holes: true
+    gaussian_sigma: 0.0  # default: 0.0
+
+# filter
 bounding_box:
     min_x: 64
     min_y: 0
@@ -28,3 +43,19 @@ solidity:
 intensity:
     target_channel: C03
     min_intensity: 128
+
+# sample
+dense_grid:
+    binning_factor: 50  # default: 50
+grid_overlap:
+    mag_first_pass: 4
+    mag_second_pass: 60
+    overlap_ratio: 0.05  # default: 0
+object_centered_grid:
+    mag_first_pass: 4
+    mag_second_pass: 60
+    overlap_ratio: 0.05  # default: 0
+region_centered_grid:
+    mag_first_pass: 4
+    mag_second_pass: 60
+    overlap_ratio: 0.05  # default: 0
