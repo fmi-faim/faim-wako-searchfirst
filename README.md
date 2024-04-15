@@ -33,21 +33,29 @@ Configuration is managed in a `config.yml` file:
 
 ```yaml
 # Required
-file_selection:  # criteria for file selection in case of multiple channels/slices per position
-    channel: C01
-process:  # choose method how to segment, filter, and sample the objects
-    segment: threshold  # choices: threshold, cellpose
-    filter: [bounding_box, area, solidity, intensity]
-    sample: centers  # choices: centers, grid_overlap, dense_grid, object_centered_grid, region_centered_grid
 
-# Each subsequent section provides arguments to one of the methods defined in 'process'.
+# criteria for file selection in case of multiple channels/slices per position
+file_selection:
+    channel: C01
+
+# choose method how to segment, filter, and sample the objects
+process:
+    # segment methods: threshold, cellpose
+    segment: threshold
+    # filter methods: bounding_box, area, solidity, intensity
+    filter: [bounding_box, area, solidity, feature, dilate, intensity]
+    # sample methods: centers, grid_overlap, dense_grid,
+    #                 object_centered_grid, region_centered_grid
+    sample: centers
+
+# Each section below provides arguments to one of the methods set in 'process'.
 # Config sections for methods not selected above will be ignored.
 
 # segment
 threshold:
     threshold: 128
-    include_holes: yes
-    gaussian_sigma: 2.0  # default: 0.0 
+    include_holes: true
+    gaussian_sigma: 0.0  # default: 0.0
 
 # filter
 bounding_box:
@@ -61,13 +69,19 @@ area:
 solidity:
     min_solidity: 0.9
     max_solidity: 1.0
+feature:
+    feature: eccentricity
+    min_value: 0.0
+    max_value: 0.99
+dilate:
+    pixel_distance: 1.0
 intensity:
     target_channel: C03
     min_intensity: 128
 
 # sample
 dense_grid:
-    binning_factor: 20  # default: 50
+    binning_factor: 50  # default: 50
 grid_overlap:
     mag_first_pass: 4
     mag_second_pass: 60
