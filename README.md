@@ -42,8 +42,8 @@ file_selection:
 process:
     # segment methods: threshold, cellpose
     segment: threshold
-    # filter methods: bounding_box, area, solidity, intensity
-    filter: [bounding_box, area, solidity, feature, dilate, intensity]
+    # filter methods: bounding_box, area, solidity, feature, border, intensity, dilate
+    filter: [bounding_box, area, solidity, feature, border, intensity, dilate]
     # sample methods: centers, grid_overlap, dense_grid,
     #                 object_centered_grid, region_centered_grid
     sample: centers
@@ -73,11 +73,13 @@ feature:
     feature: eccentricity
     min_value: 0.0
     max_value: 0.99
-dilate:
-    pixel_distance: 1.0
+border:
+    margin: 5  # default: 0
 intensity:
     target_channel: C03
     min_intensity: 128
+dilate:
+    pixel_distance: 1.0
 
 # sample
 dense_grid:

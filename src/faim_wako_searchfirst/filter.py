@@ -15,7 +15,7 @@ from pathlib import Path
 
 from numpy import ndarray
 from skimage.measure import regionprops
-from skimage.segmentation import expand_labels
+from skimage.segmentation import clear_border, expand_labels
 from tifffile import imread
 
 
@@ -71,6 +71,15 @@ def solidity(
             labels[labels == region.label] = 0
 
 
+def border(
+    tif_file: Path,
+    labels: ndarray,
+    margin: int = 0,
+):
+    """Modify 'labels' to discard objects touching the image border."""
+    labels[:] = clear_border(labels=labels, buffer_size=margin)
+
+
 def dilate(
     tif_file: Path,
     labels: ndarray,
@@ -86,7 +95,7 @@ def intensity(
     target_channel: str,
     min_intensity: int,
 ):
-    """Filter objects in 'labels' using the provided function."""
+    """Filter objects in 'labels' by intensity in other channel."""
     intensity_image = imread(_get_other_channel_file(tif_file, target_channel))
     _filter_objects_by_intensity(labels, intensity_image, min_intensity)
 
