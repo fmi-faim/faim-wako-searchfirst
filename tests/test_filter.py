@@ -8,7 +8,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from faim_wako_searchfirst.filter import dilate, feature
+from faim_wako_searchfirst.filter import border, dilate, feature
 from skimage.io import imread
 
 
@@ -28,6 +28,18 @@ def test_feature(_label_image: np.ndarray):
         max_value=1.0,
     )
     assert np.unique(labels).tolist() == [0, 2, 3, 4]
+
+
+def test_border(_label_image: np.ndarray):
+    """Test discard border objects."""
+    labels = _label_image.copy()
+    assert np.unique(labels).tolist() == [0, 1, 2, 3, 4]
+    border(
+        tif_file=None,
+        labels=labels,
+        margin=15,
+    )
+    assert np.unique(labels).tolist() == [0, 3, 4]
 
 
 def test_dilate(_label_image: np.ndarray):
