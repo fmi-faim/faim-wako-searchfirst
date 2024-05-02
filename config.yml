@@ -7,6 +7,7 @@
 
 # criteria for file selection in case of multiple channels/slices per position
 file_selection:
+    mode: standard
     channel: C01
 
 # choose method how to segment, filter, and sample the objects
