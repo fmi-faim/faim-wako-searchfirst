@@ -56,15 +56,22 @@ def run(folder: Union[str, Path], configfile: Union[str, Path]):
     config_copy.write_text(config.dump())
 
     # Select files
+    file_selection_config = config["file_selection"].get()
+    if "mode" in file_selection_config:
+        mode = file_selection_config.pop("mode")
+        if mode == "stitched" and "field" not in file_selection_config:
+            file_selection_config["field"] = "F0001"
+    else:
+        mode = "standard"
     tif_files = _select_files(
         folder=folder_path,
-        **(config["file_selection"].get()),
+        **file_selection_config,
     )
 
     logger.info(f"Found {len(tif_files)} matching files.")
 
     # Process
-    process = partial(_process_tif, config=config, logger=logger)
+    process = partial(_process_tif, config=config, logger=logger, mode=mode)
     with ThreadPoolExecutor() as executor:
         futures = [executor.submit(process, tif_file) for tif_file in tif_files]
         for _ in tqdm(as_completed(futures), total=len(futures)):
@@ -72,7 +79,7 @@ def run(folder: Union[str, Path], configfile: Union[str, Path]):
     logger.info("Done processing.")
 
 
-def _process_tif(tif_file, config, logger):
+def _process_tif(tif_file, config, logger, mode="standard"):
     # Setup
     # Segment
     segment_method = config["process"]["segment"].get(str)
@@ -90,7 +97,13 @@ def _process_tif(tif_file, config, logger):
     sample_fn = getattr(sample, sample_method)
 
     # Read image
+    # if mode=="standard":
     img = imread(tif_file)
+    # elif mode=="stitched":
+    # extract well name from tif_file
+    # create StackAcquisition, get WellAcquisition for current well
+    # get stitched well image with DaskTileStitcher
+    # else: error
 
     # Segment
     labels = segment_fn(
@@ -123,10 +136,13 @@ def _process_tif(tif_file, config, logger):
 
 def _select_files(
     folder: Path,
+    time: str = "T[0-9][0-9][0-9][0-9]",
+    field: str = "F[0-9][0-9][0-9]",
+    plane: str = "Z[0-9][0-9]",
     channel: str = "C01",
 ) -> List[Path]:
     """Filter all TIFs in folder starting with folder name - and containing channel ID."""
-    return sorted(folder.rglob(folder.name + "*" + channel + ".tif"))
+    return sorted(folder.glob(folder.name + "_*_" + time + field + "L[0-9][0-9]A[0-9][0-9]" + plane + channel + ".tif"))
 
 
 def _save_segmentation_image(folder_path, filename, img, labels):
