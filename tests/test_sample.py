@@ -8,8 +8,9 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-from faim_wako_searchfirst.sample import object_centered_grid, region_centered_grid
 from skimage.io import imread
+
+from faim_wako_searchfirst.sample import object_centered_grid, region_centered_grid
 
 
 @pytest.fixture

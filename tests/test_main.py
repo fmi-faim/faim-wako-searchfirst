@@ -11,11 +11,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from skimage.io import imread
+
 from faim_wako_searchfirst.filter import area, bounding_box, solidity
 from faim_wako_searchfirst.main import run
 from faim_wako_searchfirst.sample import centers, dense_grid, grid_overlap
 from faim_wako_searchfirst.segment import threshold
-from skimage.io import imread
 
 
 @pytest.fixture

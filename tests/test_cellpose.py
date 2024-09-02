@@ -9,6 +9,7 @@ import shutil
 from pathlib import Path
 
 import pytest
+
 from faim_wako_searchfirst.main import run
 
 
