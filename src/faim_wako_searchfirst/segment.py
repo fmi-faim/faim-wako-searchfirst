@@ -72,3 +72,33 @@ def cellpose(
         **kwargs,
     )
     return mask
+
+
+def weka_classifier(
+    img,
+    classifier_path: Path,
+    logger=logging,
+):
+    """Apply a classifier.model file.
+
+    Use Trainable Weka Segmentation (via pyimagej)
+    to apply a trained classifier to the input image.
+    """
+    import imagej
+    from scyjava import jimport
+
+    logger.info("Initializing ImageJ...")
+    ij = imagej.init("sc.fiji:fiji:2.15.0")
+
+    WekaSegmentation = jimport("trainableSegmentation.WekaSegmentation")
+
+    logger.info("Starting Trainable Segmentation plugin...")
+    segmenter = WekaSegmentation(ij.py.to_imageplus(img))
+    logger.info(f"Loading classifier from {classifier_path}.")
+    segmenter.loadClassifier(str(classifier_path))
+    segmenter.applyClassifier(False)
+    # get result imp
+    # convert imp from_java
+    result = ij.py.from_java(segmenter.getClassifiedImage())
+    ij.dispose()
+    return label(result, background=1).astype(np.uint16)
