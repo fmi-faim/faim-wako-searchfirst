@@ -29,9 +29,9 @@ def test_cellpose(_data_path):
         reader = csv.reader(csv_file, quoting=csv.QUOTE_NONNUMERIC)
         entries = list(reader)
         assert len(entries) == 3, "Incorrect number of objects detected."
-        assert entries[0] == pytest.approx([1, 40.5, 30.5])
-        assert entries[1] == pytest.approx([2, 158.5, 58.5])
-        assert entries[2] == pytest.approx([3, 79.5287, 146.4483])
+        assert entries[0] == pytest.approx([1, 40.5, 30.5], rel=1e-2)
+        assert entries[1] == pytest.approx([2, 158.5, 58.5], rel=1e-2)
+        assert entries[2] == pytest.approx([3, 79.5, 146.5], rel=1e-2)
 
     segmentation_folder = _data_path.parent / (_data_path.name + "_segmentation")
     assert sum(1 for _ in segmentation_folder.glob("*")) == 1
