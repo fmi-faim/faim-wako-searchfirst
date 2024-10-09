@@ -8,8 +8,9 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from faim_wako_searchfirst.filter import border, dilate, feature
 from skimage.io import imread
+
+from faim_wako_searchfirst.filter import border, dilate, feature
 
 
 @pytest.fixture
