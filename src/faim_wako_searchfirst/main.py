@@ -24,7 +24,8 @@ from skimage.exposure import rescale_intensity
 from skimage.io import imread, imsave
 from tqdm import tqdm
 
-from faim_wako_searchfirst import filter, sample, segment
+from faim_wako_searchfirst import filter as fws_filter
+from faim_wako_searchfirst import sample, segment
 
 
 def run(folder: Union[str, Path], configfile: Union[str, Path]):
@@ -82,7 +83,7 @@ def _process_tif(tif_file, config, logger):
 
     # Filter
     filter_methods = config["process"]["filter"].as_str_seq()
-    filter_funcs = {f: getattr(filter, f) for f in filter_methods}
+    filter_funcs = {f: getattr(fws_filter, f) for f in filter_methods}
 
     # Sample
     sample_method = config["process"]["sample"].get(str)

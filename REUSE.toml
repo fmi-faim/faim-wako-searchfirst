@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2025 NONE
+#
+# SPDX-License-Identifier: CC0-1.0
+
+version = 1
+
+# Computer-generated files.
+[[annotations]]
+path = [
+    "pixi.lock",
+    ".gitattributes",
+]
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "CC0-1.0"
