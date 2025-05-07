@@ -14,7 +14,7 @@ import numpy as np
 from numpy import ndarray
 from skimage.filters.rank import maximum
 from skimage.measure import block_reduce, label, regionprops
-from skimage.morphology import rectangle
+from skimage.morphology import footprint_rectangle
 
 
 def dense_grid(
@@ -123,7 +123,7 @@ def _sample_grid_on_regions(
         x_coords = [center[1] + ((p + 1) - (n_tiles_x + 1) / 2) * tile_size_x for p in range(n_tiles_x)]
 
         Y, X = np.meshgrid(y_coords, x_coords)
-        pairs = list(zip(Y.flatten(), X.flatten()))
+        pairs = list(zip(Y.flatten(), X.flatten(), strict=True))
         valid_points = []
         for y, x in pairs:
             # Calculate the bounding box coordinates
@@ -181,7 +181,7 @@ def object_centered_grid(
 
     with open(path, "w", newline="") as csv_file:
         c = csv.writer(csv_file)
-        for label_value, point in zip(labels, coordinates):
+        for label_value, point in zip(labels, coordinates, strict=True):
             c.writerow([label_value, *reversed(point)])
 
 
@@ -202,8 +202,8 @@ def region_centered_grid(
     tile_size_x = labeled_img.shape[1] * factor * shift_percent
     # dilate
     mask = labeled_img > 0
-    footprint = rectangle(
-        np.ceil(tile_size_y).astype(int), np.ceil(tile_size_x).astype(int)
+    footprint = footprint_rectangle(
+        [np.ceil(tile_size_y).astype(int), np.ceil(tile_size_x).astype(int)]
     )  # , decomposition="separable"
     dilated = maximum(image=mask.astype(np.uint8), footprint=footprint)
     # label
@@ -219,5 +219,5 @@ def region_centered_grid(
 
     with open(path, "w", newline="") as csv_file:
         c = csv.writer(csv_file)
-        for label_value, point in zip(labels, coordinates):
+        for label_value, point in zip(labels, coordinates, strict=True):
             c.writerow([label_value, *reversed(point)])
