@@ -55,8 +55,8 @@ function process(folder, tifFile, seg_folder) {
 	saveAs("PNG", seg_folder + File.separator + name + "_mask.png");
 
 	// resize image by overlap ratio and magnification ratio
-	n_tiles_x = Math.ceil((1 + overlap_ratio) / mag_ratio); // 6
-	n_tiles_y = Math.ceil((1 + overlap_ratio) / mag_ratio);
+	n_tiles_x = Math.floor((1 + overlap_ratio) / mag_ratio); // 6
+	n_tiles_y = Math.floor((1 + overlap_ratio) / mag_ratio);
 	print("n_tiles: " + n_tiles_x);
 
 	w = getWidth(); // 500
@@ -79,7 +79,7 @@ function process(folder, tifFile, seg_folder) {
 	target_w = n_tiles_x * tile_w; // 
 	target_h = n_tiles_y * tile_h;
 	print("target_w: " + target_w);
-	run("Canvas Size...", "width=&target_w height=&target_h position=Top-Left zero");
+	run("Canvas Size...", "width=&target_w height=&target_h position=Center zero");
 	run("Duplicate...", "title=mask"); // DEBUG
 	run("32-bit");
 	run("Size...", "width=&n_tiles_x height=&n_tiles_y depth=1 constrain average interpolation=None");
@@ -92,8 +92,8 @@ function process(folder, tifFile, seg_folder) {
 	for (x = 0; x < width; x++) {
 		for (y = 0; y < height; y++) {
 			if (getPixel(x, y) > 1.0) {
-				Table.set("X", rowIndex, 4.0 * (x * tile_w + (0.5 * tile_w) + (margin_x/2)));
-				Table.set("Y", rowIndex, 4.0 * (y * tile_h + (0.5 * tile_h) + (margin_y/2)));
+				Table.set("X", rowIndex, 4.0 * (x * tile_w + (0.5 * tile_w) + ((w - target_w)/2)));
+				Table.set("Y", rowIndex, 4.0 * (y * tile_h + (0.5 * tile_h) + ((h - target_h)/2)));
 				rowIndex++;
 			}
 		}
