@@ -104,8 +104,10 @@ The Python script called by Wako Automation Software needs to accept the acquisi
 import typer
 from faim_wako_searchfirst.main import run
 
+
 def main(folder_path: str):
     run(folder=folder_path, configfile="config.yml")
+
 
 if __name__ == "__main__":
     typer.run(main)
